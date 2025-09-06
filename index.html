@@ -13,7 +13,7 @@
   <header class="site-header">
     <h1>Gallery</h1>
     <nav class="top-nav">
-      <button class="btn" id="open-submit" type="button">Submit a piece</button>
+      <button class="btn" id="open-submit" type="button">Submittion</button>
     </nav>
   </header>
 
@@ -64,11 +64,50 @@
     <button class="close" id="submit-close" aria-label="Close">×</button>
     <form id="submit-form" class="submit-form" method="dialog">
       <h2>Submit a piece</h2>
-      <p class="muted">No account needed — uploads are anonymous. Keep images under 10 MB.</p>
+      <p class="muted">Details</p>
       <div class="grid2">
         <label>Identifier<input name="identifier" required placeholder="BQ-042"></label>
-        <label>Glaze<input name="glaze" placeholder="Shino"></label>
-        <label>Clay body<input name="clay_body" placeholder="Stoneware"></label>
+
+        <div class="glazes" id="glazes">
+          <div class="glaze-row" data-index="0">
+            <label>Glaze used
+              <input class="glaze-name" placeholder="e.g., Shino" required>
+            </label>
+
+            <label class="layers">Layers
+              <div class="layers-input">
+                <input class="glaze-layers" type="number" min="1" max="10" step="1" value="1" required>
+                <span>layers</span>
+              </div>
+            </label>
+
+            <label>Application (optional)
+              <input class="glaze-application" placeholder="e.g., top half">
+            </label>
+
+            <button type="button" class="btn remove-glaze" aria-label="Remove glaze">Remove glaze</button>
+          </div>
+
+          <div class="row">
+            <button type="button" class="btn" id="add-glaze">Add glaze</button>
+          </div>
+        </div>
+
+
+        <label>Clay body
+          <select name="clay_body_choice" id="clay_body_choice" required>
+            <option value="">Select a clay body</option>
+            <option value="White">White</option>
+            <option value="Red">Red</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+
+        <label id="clay_other_wrap" hidden>
+          Other clay body
+          <input name="clay_body_other" id="clay_body_other" placeholder="e.g., Porcelain, Stoneware, Terra Cotta">
+        </label>
+
         <label>Tags (comma-separated)<input name="tags" placeholder="cup, bowl"></label>
       </div>
       <label>Notes<textarea name="notes" rows="3" placeholder="Optional details..."></textarea></label>

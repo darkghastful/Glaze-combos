@@ -65,3 +65,13 @@ dialog::backdrop { background: rgba(0,0,0,0.5); }
   #detail-image { aspect-ratio: 4/3; }
   .grid2 { grid-template-columns: 1fr; }
 }
+
+
+.glazes { display: flex; flex-direction: column; gap: 12px; }
+.glaze-row { display: grid; gap: 12px; grid-template-columns: 1.2fr 0.8fr 1.2fr auto; align-items: end; }
+.layers-input { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px; }
+.layers-input span { font-size: 12px; color: var(--muted); padding-bottom: 2px; }
+.remove-glaze { background: #1a2333; border: 1px solid var(--ring); border-radius: 10px; padding: 8px 10px; }
+@media (max-width: 840px) {
+  .glaze-row { grid-template-columns: 1fr; }
+}

@@ -17,7 +17,7 @@ const PER_SUBMISSION_BUDGET = Math.floor(MAX_LIBRARY_BYTES * SAFETY / EXPECTED_M
 const MAIN_BUDGET_BYTES  = Math.floor(PER_SUBMISSION_BUDGET * 0.90);
 const THUMB_BUDGET_BYTES = PER_SUBMISSION_BUDGET - MAIN_BUDGET_BYTES;
 
-// Visual max dimensions (keeps detail on glaze while controlling size)
+// Visual max dimensions
 const IMAGE_MAX_LONG_EDGE = 1600; // px
 const THUMB_MAX_LONG_EDGE = 480;  // px
 
@@ -77,7 +77,7 @@ async function resizeToBudget(file, {
 
   async function tryType(type) {
     let lo = qMin, hi = qMax, best = null;
-    for (let i = 0; i < 6; i++) { // 6 steps ≈ good enough
+    for (let i = 0; i < 6; i++) {
       const q = (lo + hi) / 2;
       let blob;
       try { blob = await encodeCanvas(canvas, type, q); } catch { return null; }
@@ -111,7 +111,7 @@ async function resizeToBudget(file, {
 
 // ---------- Firebase init ----------
 const app = initializeApp(firebaseConfig);
-// Optional App Check (uncomment when you have a site key and want to enforce)
+// Optional App Check
 // initializeAppCheck(app, { provider: new ReCaptchaV3Provider("YOUR_RECAPTCHA_SITE_KEY"), isTokenAutoRefreshEnabled: true });
 
 const auth = getAuth(app);
@@ -135,6 +135,68 @@ const form = document.getElementById('submit-form');
 const submitBtn = document.getElementById('submit-btn');
 const statusEl = document.getElementById('submit-status');
 
+// ---------- Clay body: White / Red / Other (+ text) ----------
+const clayChoice = document.getElementById('clay_body_choice');
+const clayOtherWrap = document.getElementById('clay_other_wrap');
+const clayOtherInput = document.getElementById('clay_body_other');
+
+function updateClayOtherVisibility() {
+  const show = clayChoice?.value === 'Other';
+  if (!clayOtherWrap || !clayOtherInput) return;
+  clayOtherWrap.hidden = !show;
+  clayOtherInput.required = show;
+}
+clayChoice?.addEventListener('change', updateClayOtherVisibility);
+updateClayOtherVisibility();
+
+// ---------- Glaze repeater (name, layers, application) ----------
+const glazesWrap = document.getElementById('glazes');
+const addGlazeBtn = document.getElementById('add-glaze');
+
+function makeGlazeRow(index, preset = {}) {
+  const row = document.createElement('div');
+  row.className = 'glaze-row';
+  row.dataset.index = index;
+
+  row.innerHTML = `
+    <label>Glaze used
+      <input class="glaze-name" placeholder="e.g., Obsidian" required value="${preset.name ?? ''}">
+    </label>
+    <label class="layers">Layers
+      <div class="layers-input">
+        <input class="glaze-layers" type="number" min="1" max="5" step="1" value="${preset.layers ?? 1}" required>
+        <span>layers</span>
+      </div>
+    </label>
+    <label>Application (optional)
+      <input class="glaze-application" placeholder="e.g., top half" value="${preset.application ?? ''}">
+    </label>
+    <button type="button" class="btn remove-glaze" aria-label="Remove glaze">Remove glaze</button>
+  `;
+
+  row.querySelector('.remove-glaze').addEventListener('click', () => {
+    const rows = glazesWrap.querySelectorAll('.glaze-row');
+    if (rows.length > 1) row.remove(); // always keep at least one row
+  });
+
+  return row;
+}
+
+// Ensure at least one row exists on load
+(function ensureOneGlazeRow(){
+  if (!glazesWrap) return;
+  const rows = glazesWrap.querySelectorAll('.glaze-row');
+  if (rows.length === 0 && addGlazeBtn) {
+    glazesWrap.insertBefore(makeGlazeRow(0), addGlazeBtn.parentElement);
+  }
+})();
+
+// Add row on click
+addGlazeBtn?.addEventListener('click', () => {
+  const nextIndex = glazesWrap.querySelectorAll('.glaze-row').length;
+  glazesWrap.insertBefore(makeGlazeRow(nextIndex), addGlazeBtn.parentElement);
+});
+
 // ---------- Live gallery (Firestore) ----------
 const itemsCol = collection(db, 'items');
 const qItems = query(itemsCol, orderBy('submitted_at', 'desc'));
@@ -155,7 +217,9 @@ function uniqueSorted(arr) {
 
 let lastFilterKey = '';
 function populateFilters(items) {
-  const glazes = uniqueSorted(items.map(i => i.glaze));
+  const glazes = uniqueSorted(
+    items.flatMap(i => i.glaze_names ?? (i.glaze ? [i.glaze] : []))
+  );
   const clays  = uniqueSorted(items.map(i => i.clay_body));
   const key = JSON.stringify([glazes, clays]);
   if (key === lastFilterKey) return;
@@ -163,8 +227,7 @@ function populateFilters(items) {
 
   const selGlaze = document.getElementById('filter-glaze');
   const selClay  = document.getElementById('filter-clay');
-  selGlaze.length = 1; // keep the "All" option
-  selClay.length = 1;
+  selGlaze.length = 1; selClay.length = 1;
   for (const g of glazes) selGlaze.insertAdjacentHTML('beforeend', `<option>${g}</option>`);
   for (const c of clays)  selClay.insertAdjacentHTML('beforeend', `<option>${c}</option>`);
 }
@@ -175,7 +238,8 @@ function renderGallery(items) {
   const idq = document.getElementById('filter-id').value.trim().toLowerCase();
 
   const filtered = items.filter(i => {
-    const glazeOk = !g || (i.glaze || '').toLowerCase() === g;
+    const names = i.glaze_names ?? (i.glaze ? [i.glaze] : []);
+    const glazeOk = !g || names.some(n => (n || '').toLowerCase() === g);
     const clayOk  = !c || (i.clay_body || '').toLowerCase() === c;
     const idOk    = !idq || (i.identifier || '').toLowerCase().includes(idq);
     return glazeOk && clayOk && idOk;
@@ -184,6 +248,9 @@ function renderGallery(items) {
   const $g = document.getElementById('gallery');
   $g.innerHTML = '';
   for (const item of filtered) {
+    const glazeLine = (item.glaze_names && item.glaze_names.length)
+      ? item.glaze_names.join(', ')
+      : (item.glaze || '');
     const card = document.createElement('article');
     card.className = 'card';
     card.innerHTML = `
@@ -191,7 +258,7 @@ function renderGallery(items) {
       <div class="meta">
         <div>
           <div class="title">${item.identifier || 'Untitled'}</div>
-          <div class="sub">${[item.glaze, item.clay_body].filter(Boolean).join(' • ')}</div>
+          <div class="sub">${[glazeLine, item.clay_body].filter(Boolean).join(' • ')}</div>
         </div>
       </div>
       <button class="open" aria-label="Open details"></button>
@@ -204,7 +271,16 @@ function renderGallery(items) {
 function openDetail(item) {
   document.getElementById('detail-image').src = item.image_url;
   document.getElementById('detail-title').textContent = item.identifier || 'Untitled';
-  document.getElementById('detail-glaze').textContent = item.glaze || '—';
+  const gz = Array.isArray(item.glazes) ? item.glazes : [];
+  const glazeDetail = gz.length
+    ? gz.map(g => {
+        const parts = [g.name].filter(Boolean);
+        if (g.layers) parts.push(`${g.layers} layer${g.layers > 1 ? 's' : ''}`);
+        if (g.application) parts.push(g.application);
+        return parts.join(' — ');
+      }).join(' • ')
+    : (item.glaze || '—');
+  document.getElementById('detail-glaze').textContent = glazeDetail;
   document.getElementById('detail-clay').textContent = item.clay_body || '—';
   document.getElementById('detail-identifier').textContent = item.identifier || '—';
   document.getElementById('detail-notes').textContent = item.notes || '—';
@@ -219,21 +295,42 @@ document.getElementById('filter-glaze').addEventListener('change',  ()=> renderG
 document.getElementById('filter-clay').addEventListener('change',   ()=> renderGallery(itemsCache));
 document.getElementById('filter-id').addEventListener('input',      ()=> renderGallery(itemsCache));
 
-// ---------- Submit handler with compression & budgets ----------
+// ---------- Submit handler with compression & new fields ----------
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const fd = new FormData(form);
   const identifier = (fd.get('identifier') || '').toString().trim();
-  const glaze      = (fd.get('glaze') || '').toString().trim();
-  const clay_body  = (fd.get('clay_body') || '').toString().trim();
   const tagsCsv    = (fd.get('tags') || '').toString();
   const tags       = tagsCsv.split(',').map(s => s.trim()).filter(Boolean);
   const notes      = (fd.get('notes') || '').toString();
   const file       = fd.get('image');
 
+  // Clay body (select + optional "Other" text)
+  const clayChoiceVal = (fd.get('clay_body_choice') || '').toString();
+  const clayOtherVal  = (fd.get('clay_body_other') || '').toString().trim();
+  const clay_body     = (clayChoiceVal === 'Other') ? clayOtherVal : clayChoiceVal;
+
+  // Glazes: build from repeater rows
+  const glazeRows = Array.from(document.querySelectorAll('.glaze-row'));
+  const glazes = glazeRows.map(row => {
+    const name = row.querySelector('.glaze-name')?.value.trim() || '';
+    const layers = parseInt(row.querySelector('.glaze-layers')?.value, 10) || 1;
+    const application = row.querySelector('.glaze-application')?.value.trim() || '';
+    return { name, layers, application };
+  }).filter(g => g.name);
+  const glaze_names = glazes.map(g => g.name);
+
   if (!identifier || !file || !file.size) {
     statusEl.textContent = 'Please provide an identifier and an image.';
+    return;
+  }
+  if (!clay_body) {
+    statusEl.textContent = 'Please select a clay body (or enter one under Other).';
+    return;
+  }
+  if (glazes.length === 0) {
+    statusEl.textContent = 'Please add at least one glaze.';
     return;
   }
 
@@ -278,14 +375,27 @@ form.addEventListener('submit', async (e) => {
     const thumb_url = await getDownloadURL(thumbRef);
 
     await addDoc(itemsCol, {
-      identifier, glaze, clay_body, notes, tags,
-      image_url, thumb_url,
-      width: main.width, height: main.height,
+      identifier,
+      clay_body,
+      notes,
+      tags,
+      glazes,        // array of { name, layers, application }
+      glaze_names,   // array of strings for filtering
+      image_url,
+      thumb_url,
+      width: main.width,
+      height: main.height,
       submitted_at: serverTimestamp()
     });
 
     statusEl.textContent = 'Submitted. Thank you!';
     form.reset();
+    // Reset clay body UI state & ensure one glaze row remains
+    updateClayOtherVisibility();
+    const rows = glazesWrap.querySelectorAll('.glaze-row');
+    rows.forEach((r, idx) => { if (idx > 0) r.remove(); });
+    glazesWrap.querySelector('.glaze-name')?.focus();
+
     setTimeout(() => { submitModal?.close?.(); statusEl.textContent = ''; }, 800);
 
   } catch (err) {
