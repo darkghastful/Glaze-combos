@@ -63,12 +63,12 @@
   <dialog id="submit-modal">
     <button class="close" id="submit-close" aria-label="Close">×</button>
     <form id="submit-form" class="submit-form" method="dialog">
-      <h2>Submit a piece</h2>
+      <h2>Submission</h2>
       <p class="muted">Details</p>
-      <div class="grid2">
+      <div class="grid3">
         <label>Clay body
           <select name="clay_body_choice" id="clay_body_choice" required>
-            <option value="">Select a clay body</option>
+            <option value="">Select</option>
             <option value="White">White</option>
             <option value="Red">Red</option>
             <option value="Other">Other</option>
@@ -79,10 +79,10 @@
           <input name="clay_body_other" id="clay_body_other" placeholder="e.g., Porcelain or Black bear">
         </label> -->
         <label>Image file<input type="file" name="image" accept="image/*" required></label>
-        <label>Tags (comma-separated)<input name="tags" placeholder="cup, bowl"></label>
+        <!-- <label>Tags (comma-separated)<input name="tags" placeholder="cup, bowl"></label> -->
         <label>Identifier<input name="identifier" required placeholder="BQ"></label>
       </div>
-      <div class="grid2">
+      <!-- <div class="grid2"> -->
         <div class="glazes" id="glazes">
           <div class="glaze-row" data-index="0">
             <label>Glaze
@@ -106,7 +106,7 @@
             <button type="button" class="btn" id="add-glaze">Add glaze</button>
           </div>
         </div>
-      </div>
+      <!-- </div> -->
       <label>Notes<textarea name="notes" rows="3" placeholder="Optional details..."></textarea></label>
       
       <div class="row end gap">

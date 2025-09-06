@@ -170,7 +170,7 @@ function makeGlazeRow(index, preset = {}) {
     <label>Application (optional)
       <input class="glaze-application" placeholder="e.g., top half" value="${preset.application ?? ''}">
     </label>
-    <button type="button" class="btn remove-glaze" aria-label="Remove glaze">Remove glaze</button>
+    <button type="button" class="btn remove-glaze" aria-label="Remove glaze">Remove</button>
   `;
 
   row.querySelector('.remove-glaze').addEventListener('click', () => {
