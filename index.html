@@ -11,10 +11,9 @@
 </head>
 <body>
   <header class="site-header">
-    <h1>Pottery Gallery</h1>
+    <h1>Gallery</h1>
     <nav class="top-nav">
-      <button class="btn" id="open-submit">Submit a piece</button>
-      <a class="btn" href="README.html" target="_blank" rel="noopener">Setup</a>
+      <button class="btn" id="open-submit" type="button">Submit a piece</button>
     </nav>
   </header>
 
@@ -75,14 +74,15 @@
       <label>Notes<textarea name="notes" rows="3" placeholder="Optional details..."></textarea></label>
       <label>Image file<input type="file" name="image" accept="image/*" required></label>
       <div class="row end gap">
-        <button class="btn" value="cancel" id="cancel-submit">Cancel</button>
+        <button class="btn" id="cancel-submit" type="button" value="cancel">Cancel</button>
         <button class="btn" id="submit-btn" value="default">Submit</button>
       </div>
       <p id="submit-status" class="muted" role="status"></p>
     </form>
   </dialog>
 
-  <!-- Firebase SDKs (loaded from CDN) -->
+  <!-- App script -->
   <script type="module" src="assets/app.js"></script>
+
 </body>
 </html>
