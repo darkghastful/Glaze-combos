@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pottery Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="assets/styles.css" rel="stylesheet" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>Pottery Gallery</h1>
+    <nav class="top-nav">
+      <a class="btn" href="https://github.com/YOUR_USER/YOUR_REPO/issues/new?template=pottery-submission.yml" target="_blank" rel="noopener">Submit a piece</a>
+      <a class="btn" href="https://github.com/YOUR_USER/YOUR_REPO" target="_blank" rel="noopener">Repo</a>
+    </nav>
+  </header>
+
+  <section class="controls">
+    <div class="control">
+      <label for="filter-glaze">Glaze</label>
+      <select id="filter-glaze">
+        <option value="">All glazes</option>
+      </select>
+    </div>
+    <div class="control">
+      <label for="filter-clay">Clay body</label>
+      <select id="filter-clay">
+        <option value="">All clays</option>
+      </select>
+    </div>
+    <div class="control">
+      <label for="filter-id">Identifier</label>
+      <input id="filter-id" type="text" placeholder="e.g. BQ‑042" />
+    </div>
+  </section>
+
+  <main>
+    <div id="gallery" class="gallery" aria-live="polite"></div>
+  </main>
+
+  <dialog id="detail-modal">
+    <button class="close" id="modal-close" aria-label="Close">×</button>
+    <div class="detail-body">
+      <img id="detail-image" alt="Selected pottery" />
+      <div class="detail-meta">
+        <h2 id="detail-title"></h2>
+        <dl>
+          <dt>Glaze</dt><dd id="detail-glaze"></dd>
+          <dt>Clay body</dt><dd id="detail-clay"></dd>
+          <dt>Identifier</dt><dd id="detail-identifier"></dd>
+          <dt>Notes</dt><dd id="detail-notes"></dd>
+          <dt>Tags</dt><dd id="detail-tags"></dd>
+          <dt>Submitted</dt><dd id="detail-date"></dd>
+        </dl>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="assets/app.js" type="module"></script>
+</body>
+</html>

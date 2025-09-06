@@ -1,0 +1,38 @@
+name: Process pottery submission
+on:
+  issues:
+    types: [opened, edited]
+permissions:
+  contents: write
+  issues: read
+jobs:
+  ingest:
+    if: contains(join(fromJson(toJson(github.event.issue.labels)).*.name, ','), 'submission')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run ingestion
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          REPO: ${{ github.repository }}
+        run: node scripts/process-issue.mjs
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Ingest submission from issue #${{ github.event.issue.number }}" || echo "No changes"
+          git push
+      - name: Comment & close issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.issue.number;
+            await github.rest.issues.createComment({
+              ...context.repo, issue_number,
+              body: 'Thanks! Your piece has been added to the gallery.'
+            });
+            await github.rest.issues.update({ ...context.repo, issue_number, state: 'closed' });
