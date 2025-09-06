@@ -1,4 +1,5 @@
-const firebaseConfig = {
+// assets/firebase-config.js
+export const firebaseConfig = {
   apiKey: "AIzaSyAQfnja1Ae_pmn5riy32IXAWTv6hZqocdo",
   authDomain: "glaze-combos.firebaseapp.com",
   projectId: "glaze-combos",
