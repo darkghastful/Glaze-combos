@@ -48,8 +48,8 @@
       <div class="detail-meta">
         <h2 id="detail-title"></h2>
         <dl>
-          <dt>Glaze</dt><dd id="detail-glaze"></dd>
           <dt>Clay body</dt><dd id="detail-clay"></dd>
+          <dt>Glaze</dt><dd id="detail-glaze"></dd>
           <dt>Identifier</dt><dd id="detail-identifier"></dd>
           <dt>Notes</dt><dd id="detail-notes"></dd>
           <dt>Tags</dt><dd id="detail-tags"></dd>
@@ -66,34 +66,6 @@
       <h2>Submit a piece</h2>
       <p class="muted">Details</p>
       <div class="grid2">
-        <label>Identifier<input name="identifier" required placeholder="BQ-042"></label>
-
-        <div class="glazes" id="glazes">
-          <div class="glaze-row" data-index="0">
-            <label>Glaze used
-              <input class="glaze-name" placeholder="e.g., Shino" required>
-            </label>
-
-            <label class="layers">Layers
-              <div class="layers-input">
-                <input class="glaze-layers" type="number" min="1" max="10" step="1" value="1" required>
-                <span>layers</span>
-              </div>
-            </label>
-
-            <label>Application (optional)
-              <input class="glaze-application" placeholder="e.g., top half">
-            </label>
-
-            <button type="button" class="btn remove-glaze" aria-label="Remove glaze">Remove glaze</button>
-          </div>
-
-          <div class="row">
-            <button type="button" class="btn" id="add-glaze">Add glaze</button>
-          </div>
-        </div>
-
-
         <label>Clay body
           <select name="clay_body_choice" id="clay_body_choice" required>
             <option value="">Select a clay body</option>
@@ -105,13 +77,39 @@
 
         <label id="clay_other_wrap" hidden>
           Other clay body
-          <input name="clay_body_other" id="clay_body_other" placeholder="e.g., Porcelain, Stoneware, Terra Cotta">
+          <input name="clay_body_other" id="clay_body_other" placeholder="e.g., Porcelain or Black bear">
         </label>
+
+        <div class="glazes" id="glazes">
+          <div class="glaze-row" data-index="0">
+            <label>Glaze
+              <input class="glaze-name" placeholder="e.g., Obsidian" required>
+            </label>
+
+            <label class="layers">Layers
+              <div class="layers-input">
+                <input class="glaze-layers" type="number" min="1" max="10" step="1" value="1" required>
+              </div>
+            </label>
+
+            <label>Application (optional)
+              <input class="glaze-application" placeholder="e.g., top half">
+            </label>
+
+            <!-- <button type="button" class="btn remove-glaze" aria-label="Remove glaze">Remove glaze</button> -->
+          </div>
+
+          <div class="row">
+            <button type="button" class="btn" id="add-glaze">Add glaze</button>
+          </div>
+        </div>
 
         <label>Tags (comma-separated)<input name="tags" placeholder="cup, bowl"></label>
       </div>
       <label>Notes<textarea name="notes" rows="3" placeholder="Optional details..."></textarea></label>
       <label>Image file<input type="file" name="image" accept="image/*" required></label>
+      <label>Identifier<input name="identifier" required placeholder="BQ"></label>
+
       <div class="row end gap">
         <button class="btn" id="cancel-submit" type="button" value="cancel">Cancel</button>
         <button class="btn" id="submit-btn" value="default">Submit</button>
