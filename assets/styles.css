@@ -16,14 +16,14 @@ body {
 .site-header { display:flex; align-items:center; justify-content:space-between; padding: 20px clamp(16px, 3vw, 40px); }
 .site-header h1 { margin:0; font-size: clamp(20px, 3vw, 28px); letter-spacing: 0.2px; }
 .top-nav { display:flex; gap: 12px; }
-.btn { display:inline-block; padding: 10px 14px; border-radius: 12px; background: #1a2333; color: var(--text); text-decoration:none; border:1px solid var(--ring); }
+.btn { display:inline-block; padding: 10px 14px; border-radius: 12px; background: #1a2333; color: var(--text); text-decoration:none; border:1px solid var(--ring); cursor:pointer;}
 .btn:hover { border-color: var(--accent); }
 
 .controls { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0 clamp(16px, 3vw, 40px) 10px; }
 .control { display:flex; flex-direction:column; gap:6px; }
-label { font-size: 12px; color: var(--muted); }
-input, select { background:#0f1320; color:var(--text); border:1px solid var(--ring); border-radius: 10px; padding: 10px 12px; outline:none; }
-input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent), transparent 60%); }
+label { font-size: 12px; color: var(--muted); display:flex; flex-direction:column; gap:6px; }
+input, select, textarea { background:#0f1320; color:var(--text); border:1px solid var(--ring); border-radius: 10px; padding: 10px 12px; outline:none; }
+input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent), transparent 60%); }
 
 .gallery { 
   padding: 10px clamp(16px, 3vw, 40px) 60px; 
@@ -41,7 +41,7 @@ input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px c
 /* Modal */
 dialog { width:min(1000px, 92vw); border:none; border-radius: 18px; background: var(--card); color: var(--text); padding: 0; }
 dialog::backdrop { background: rgba(0,0,0,0.5); }
-#modal-close { position:absolute; top:10px; right:12px; border:1px solid var(--ring); background:#0f1320; color:var(--text); border-radius:10px; padding:4px 8px; cursor:pointer; }
+#modal-close, #submit-close { position:absolute; top:10px; right:12px; border:1px solid var(--ring); background:#0f1320; color:var(--text); border-radius:10px; padding:4px 8px; cursor:pointer; }
 .detail-body { display:grid; grid-template-columns: 1.2fr 1fr; gap: 0; }
 #detail-image { width:100%; height:100%; object-fit:cover; background:#0b0d14; }
 .detail-meta { padding: 16px 18px; border-left: 1px solid var(--ring); }
@@ -50,8 +50,18 @@ dialog::backdrop { background: rgba(0,0,0,0.5); }
 .detail-meta dt { color: var(--muted); font-size: 12px; }
 .detail-meta dd { margin:0; font-size: 14px; }
 
+/* Submit form */
+.submit-form { padding: 18px; display:flex; flex-direction:column; gap:12px; }
+.submit-form h2 { margin:0 0 6px; font-size: 18px; }
+.grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row { display:flex; align-items:center; }
+.end { justify-content:flex-end; }
+.gap { gap: 8px; }
+.muted { color: var(--muted); font-size: 12px; }
+
 @media (max-width: 840px) {
   .controls { grid-template-columns: 1fr; }
   .detail-body { grid-template-columns: 1fr; }
   #detail-image { aspect-ratio: 4/3; }
+  .grid2 { grid-template-columns: 1fr; }
 }

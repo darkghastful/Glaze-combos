@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pottery Gallery</title>
+  <title>Pottery Gallery — Direct Submit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -13,8 +13,8 @@
   <header class="site-header">
     <h1>Pottery Gallery</h1>
     <nav class="top-nav">
-      <a class="btn" href="https://github.com/darkghastful/Glaze-combos/issues/new?template=pottery-submission.yml" target="_blank" rel="noopener">Submit a piece</a>
-      <a class="btn" href="https://github.com/darkghastful/Glaze-combos" target="_blank" rel="noopener">Repo</a>
+      <button class="btn" id="open-submit">Submit a piece</button>
+      <a class="btn" href="README.html" target="_blank" rel="noopener">Setup</a>
     </nav>
   </header>
 
@@ -33,7 +33,7 @@
     </div>
     <div class="control">
       <label for="filter-id">Identifier</label>
-      <input id="filter-id" type="text" placeholder="e.g. BQ‑042" />
+      <input id="filter-id" type="text" placeholder="e.g. BQ-042" />
     </div>
   </section>
 
@@ -41,6 +41,7 @@
     <div id="gallery" class="gallery" aria-live="polite"></div>
   </main>
 
+  <!-- Detail Modal -->
   <dialog id="detail-modal">
     <button class="close" id="modal-close" aria-label="Close">×</button>
     <div class="detail-body">
@@ -59,6 +60,29 @@
     </div>
   </dialog>
 
-  <script src="assets/app.js" type="module"></script>
+  <!-- Submit Modal -->
+  <dialog id="submit-modal">
+    <button class="close" id="submit-close" aria-label="Close">×</button>
+    <form id="submit-form" class="submit-form" method="dialog">
+      <h2>Submit a piece</h2>
+      <p class="muted">No account needed — uploads are anonymous. Keep images under 10 MB.</p>
+      <div class="grid2">
+        <label>Identifier<input name="identifier" required placeholder="BQ-042"></label>
+        <label>Glaze<input name="glaze" placeholder="Shino"></label>
+        <label>Clay body<input name="clay_body" placeholder="Stoneware"></label>
+        <label>Tags (comma-separated)<input name="tags" placeholder="cup, bowl"></label>
+      </div>
+      <label>Notes<textarea name="notes" rows="3" placeholder="Optional details..."></textarea></label>
+      <label>Image file<input type="file" name="image" accept="image/*" required></label>
+      <div class="row end gap">
+        <button class="btn" value="cancel" id="cancel-submit">Cancel</button>
+        <button class="btn" id="submit-btn" value="default">Submit</button>
+      </div>
+      <p id="submit-status" class="muted" role="status"></p>
+    </form>
+  </dialog>
+
+  <!-- Firebase SDKs (loaded from CDN) -->
+  <script type="module" src="assets/app.js"></script>
 </body>
 </html>
