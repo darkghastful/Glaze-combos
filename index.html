@@ -74,12 +74,15 @@
             <option value="Other">Other</option>
           </select>
         </label>
-
-        <label id="clay_other_wrap" hidden>
+        <!-- <label id="clay_other_wrap" hidden>
           Other clay body
           <input name="clay_body_other" id="clay_body_other" placeholder="e.g., Porcelain or Black bear">
-        </label>
-
+        </label> -->
+        <label>Image file<input type="file" name="image" accept="image/*" required></label>
+        <label>Tags (comma-separated)<input name="tags" placeholder="cup, bowl"></label>
+        <label>Identifier<input name="identifier" required placeholder="BQ"></label>
+      </div>
+      <div class="grid2">
         <div class="glazes" id="glazes">
           <div class="glaze-row" data-index="0">
             <label>Glaze
@@ -103,13 +106,9 @@
             <button type="button" class="btn" id="add-glaze">Add glaze</button>
           </div>
         </div>
-
-        <label>Tags (comma-separated)<input name="tags" placeholder="cup, bowl"></label>
       </div>
       <label>Notes<textarea name="notes" rows="3" placeholder="Optional details..."></textarea></label>
-      <label>Image file<input type="file" name="image" accept="image/*" required></label>
-      <label>Identifier<input name="identifier" required placeholder="BQ"></label>
-
+      
       <div class="row end gap">
         <button class="btn" id="cancel-submit" type="button" value="cancel">Cancel</button>
         <button class="btn" id="submit-btn" value="default">Submit</button>

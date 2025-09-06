@@ -159,13 +159,12 @@ function makeGlazeRow(index, preset = {}) {
   row.dataset.index = index;
 
   row.innerHTML = `
-    <label>Glaze used
+    <label>Glaze
       <input class="glaze-name" placeholder="e.g., Obsidian" required value="${preset.name ?? ''}">
     </label>
     <label class="layers">Layers
       <div class="layers-input">
         <input class="glaze-layers" type="number" min="1" max="5" step="1" value="${preset.layers ?? 1}" required>
-        <span>layers</span>
       </div>
     </label>
     <label>Application (optional)
