@@ -119,15 +119,14 @@
   </dialog>
 
   <dialog id="suggest-modal">
-  <button class="close" id="suggest-close" aria-label="Close">×</button>
+  <button class="close" id="submit-close" aria-label="Close">×</button>
   <form id="suggest-form" class="suggest-form" method="dialog">
     <h2>Send a suggestion</h2>
-    <p class="muted">Share an idea or request. No account needed.</p>
-    <label>Your suggestion
-      <textarea id="suggest-text" rows="4" required placeholder="Type your suggestion..."></textarea>
+    <p class="muted">Share an idea or request to help improve the website.</p>
+    <label>
+      <textarea id="suggest-text" rows="4" required placeholder=""></textarea>
     </label>
     <div class="row end gap">
-      <button class="btn" type="button" id="suggest-cancel" value="cancel">Cancel</button>
       <button class="btn" id="suggest-submit" value="default">Send</button>
     </div>
     <p id="suggest-status" class="muted" role="status"></p>
