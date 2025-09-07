@@ -355,8 +355,8 @@ form.addEventListener('submit', async (e) => {
 
   const fd = new FormData(form);
   const identifier = (fd.get('identifier') || '').toString().trim();
-  const tagsCsv    = (fd.get('tags') || '').toString();
-  const tags       = tagsCsv.split(',').map(s => s.trim()).filter(Boolean);
+  // const tagsCsv    = (fd.get('tags') || '').toString();
+  // const tags       = tagsCsv.split(',').map(s => s.trim()).filter(Boolean);
   const notes      = (fd.get('notes') || '').toString();
   const file       = fd.get('image');
 
@@ -432,7 +432,7 @@ form.addEventListener('submit', async (e) => {
       identifier,
       clay_body,
       notes,
-      tags,
+      // tags,
       glazes,        // array of { name, layers, application }
       glaze_names,   // array of strings for filtering
       image_url,
