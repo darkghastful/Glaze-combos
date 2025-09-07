@@ -300,7 +300,6 @@ function renderGallery(items) {
       <img class="thumb" loading="lazy" src="${item.thumb_url || item.image_url}" alt="${item.identifier || 'Pottery'}" />
       <div class="meta">
         <div>
-          // <div class="title">${item.identifier || 'Untitled'}</div>
           <div class="title">${[item.clay_body, glazeLine].filter(Boolean).join(' • ')}</div>
         </div>
       </div>
@@ -322,7 +321,7 @@ function openDetail(item) {
         if (g.layers) parts.push(`${g.layers} layer${g.layers > 1 ? 's' : ''}`);
         if (g.application) parts.push(g.application);
         return parts.join(' — ');
-      }).join('\n')
+      }).join('<br>')
     : (item.glaze || '—');
   document.getElementById('detail-glaze').textContent = glazeDetail;
   document.getElementById('detail-notes').textContent = item.notes || '—';
