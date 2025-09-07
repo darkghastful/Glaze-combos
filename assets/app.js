@@ -446,3 +446,25 @@ form.addEventListener('submit', async (e) => {
     submitBtn.disabled = false;
   }
 });
+
+
+document.getElementById('test-doc')?.addEventListener('click', async () => {
+  try {
+    if (!auth.currentUser) await signInAnonymously(auth);
+    const sample = {
+      clay_body: 'White',
+      notes: '',
+      glazes: [{ name: 'Shino', layers: 1, application: '' }],
+      glaze_names: ['Shino'],
+      image_url: 'https://example.com/image.jpg',
+      thumb_url: 'https://example.com/thumb.jpg',
+      width: 800, height: 800,
+      submitted_at: serverTimestamp()
+    };
+    await addDoc(itemsCol, sample);
+    alert('Firestore create OK');
+  } catch (e) {
+    console.error('Doc test failed:', e);
+    alert('Firestore error: ' + (e.code || e.message));
+  }
+});
