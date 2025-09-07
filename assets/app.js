@@ -117,6 +117,9 @@ const app = initializeApp(firebaseConfig);
 // initializeAppCheck(app, { provider: new ReCaptchaV3Provider("YOUR_RECAPTCHA_SITE_KEY"), isTokenAutoRefreshEnabled: true });
 
 const auth = getAuth(app);
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+onAuthStateChanged(auth, (u) => console.log('AUTH uid =', u?.uid || null));
+
 const db = getFirestore(app);
 setLogLevel('debug'); // temporary while debugging
 const storage = getStorage(app, "gs://glaze-combos.appspot.com");
@@ -382,6 +385,8 @@ form.addEventListener('submit', async (e) => {
 
   try {
     if (!auth.currentUser) await signInAnonymously(auth);
+    console.log('About to write as uid =', auth.currentUser?.uid || null);
+    
     const uid = auth.currentUser?.uid || 'anon';
 
     // Compress to target budgets
@@ -451,6 +456,8 @@ form.addEventListener('submit', async (e) => {
 document.getElementById('test-doc')?.addEventListener('click', async () => {
   try {
     if (!auth.currentUser) await signInAnonymously(auth);
+    console.log('About to write as uid =', auth.currentUser?.uid || null);
+
     const sample = {
       clay_body: 'White',
       notes: '',
