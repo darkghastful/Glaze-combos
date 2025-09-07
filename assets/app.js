@@ -311,25 +311,48 @@ function renderGallery(items) {
 }
 
 function openDetail(item) {
-  document.getElementById('detail-image').src = item.image_url;
-  document.getElementById('detail-title').textContent = item.identifier || 'Untitled';
-  document.getElementById('detail-clay').textContent = item.clay_body || '—';
+  const elImage = document.getElementById('detail-image');
+  const elTitle = document.getElementById('detail-title');
+  const elClay = document.getElementById('detail-clay');
+  const elGlaze = document.getElementById('detail-glaze');
+  const elNotes = document.getElementById('detail-notes');
+  const elDate = document.getElementById('detail-date');
+  const elIdent = document.getElementById('detail-identifier');
+
+  elImage.src = item.image_url;
+  elTitle.textContent = item.identifier || 'Untitled';
+  elClay.textContent = item.clay_body || '—';
+
   const gz = Array.isArray(item.glazes) ? item.glazes : [];
-  const glazeDetail = gz.length
-    ? gz.map(g => {
-        const parts = [g.name].filter(Boolean);
-        if (g.layers) parts.push(`${g.layers} layer${g.layers > 1 ? 's' : ''}`);
-        if (g.application) parts.push(g.application);
-        return parts.join(' — ');
-      }).join('<br>')
-    : (item.glaze || '—');
-  document.getElementById('detail-glaze').textContent = glazeDetail;
-  document.getElementById('detail-notes').textContent = item.notes || '—';
+  if (gz.length) {
+    const lines = gz.map(g => {
+      const parts = [g.name].filter(Boolean);
+      if (g.layers) parts.push(`${g.layers} layer${g.layers > 1 ? 's' : ''}`);
+      if (g.application) parts.push(g.application);
+      return parts.join(' — ');
+    });
+
+    elGlaze.replaceChildren(
+      ...lines.map(text => {
+        const div = document.createElement('div');
+        div.textContent = text; // safe, renders as separate lines
+        return div;
+      })
+    );
+  } else {
+    elGlaze.textContent = item.glaze || '—';
+  }
+
+  elNotes.textContent = item.notes || '—';
+
   const dt = item.submitted_at?.toDate?.() || item.submitted_at;
-  document.getElementById('detail-date').textContent = dt ? new Date(dt).toLocaleString() : '—';
-  document.getElementById('detail-identifier').textContent = item.identifier || '—';
+  elDate.textContent = dt ? new Date(dt).toLocaleString() : '—';
+
+  elIdent.textContent = item.identifier || '—';
+
   modal.showModal();
 }
+
 
 // Filters -> re-render
 document.getElementById('filter-glaze').addEventListener('change',  ()=> renderGallery(itemsCache));
