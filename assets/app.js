@@ -169,7 +169,7 @@ function makeGlazeRow(index, preset = {}) {
     </label>
     <label class="layers">Layers
       <div class="layers-input">
-        <input class="glaze-layers" type="number" min="1" max="5" step="1" value="${preset.layers ?? 1}" required>
+        <input class="glaze-layers" type="number" min="1" max="5" step="1" value="${preset.layers ?? 2}" required>
       </div>
     </label>
     <label>Application (optional)
