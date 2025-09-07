@@ -423,9 +423,7 @@ form.addEventListener('submit', async (e) => {
       'submitted_at','glazes','glaze_names'];
 
     const doc = {
-      identifier: identifier || undefined,
       clay_body,
-      notes,
       glazes,
       glaze_names,
       image_url,
@@ -434,6 +432,9 @@ form.addEventListener('submit', async (e) => {
       height: main.height,
       submitted_at: serverTimestamp()
     };
+    if (identifier) doc.identifier = identifier;
+    if (notes) doc.notes = notes;
+
 
     const keys = Object.keys(doc);
     const extras = keys.filter(k => !ALLOWED.includes(k));
