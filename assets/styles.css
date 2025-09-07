@@ -82,3 +82,6 @@ dialog::backdrop { background: rgba(0,0,0,0.5); }
 @media (max-width: 840px) {
   .glaze-row { grid-template-columns: 1fr; }
 }
+
+
+.suggest-form { padding: 18px; display: flex; flex-direction: column; gap: 12px; }

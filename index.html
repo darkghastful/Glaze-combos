@@ -14,6 +14,7 @@
     <h1>Gallery</h1>
     <nav class="top-nav">
       <button class="btn" id="open-submit" type="button">Submittion</button>
+      <button class="btn" id="open-suggest" type="button">Suggestion</button>
     </nav>
   </header>
 
@@ -116,6 +117,23 @@
       <p id="submit-status" class="muted" role="status"></p>
     </form>
   </dialog>
+
+  <dialog id="suggest-modal">
+  <button class="close" id="suggest-close" aria-label="Close">×</button>
+  <form id="suggest-form" class="suggest-form" method="dialog">
+    <h2>Send a suggestion</h2>
+    <p class="muted">Share an idea or request. No account needed.</p>
+    <label>Your suggestion
+      <textarea id="suggest-text" rows="4" required placeholder="Type your suggestion..."></textarea>
+    </label>
+    <div class="row end gap">
+      <button class="btn" type="button" id="suggest-cancel" value="cancel">Cancel</button>
+      <button class="btn" id="suggest-submit" value="default">Send</button>
+    </div>
+    <p id="suggest-status" class="muted" role="status"></p>
+  </form>
+</dialog>
+
 
   <!-- App script -->
   <script type="module" src="assets/app.js"></script>

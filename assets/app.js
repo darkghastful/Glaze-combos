@@ -6,6 +6,8 @@ import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://ww
 // Optional App Check (uncomment + add your site key, then enforce in console)
 // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 import { firebaseConfig } from "./firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+
 
 // ---------- Capacity & image settings (tuned for ≤ 3k pieces under 5GB) ----------
 const MAX_LIBRARY_BYTES = 5e9;          // 5 GB (decimal)
@@ -117,6 +119,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const functions = getFunctions(app);
+const submitSuggestionFn = httpsCallable(functions, "submitSuggestion");
+
 
 // Anonymous auth (required for Storage write & Firestore create per your rules)
 signInAnonymously(auth).catch(console.error);
@@ -195,6 +200,56 @@ addGlazeBtn?.addEventListener('click', () => {
   const nextIndex = glazesWrap.querySelectorAll('.glaze-row').length;
   glazesWrap.insertBefore(makeGlazeRow(nextIndex), addGlazeBtn.parentElement);
 });
+
+
+// Suggestions
+const suggestModal  = document.getElementById('suggest-modal');
+document.getElementById('open-suggest')?.addEventListener('click', ()=> suggestModal?.showModal?.());
+document.getElementById('suggest-close')?.addEventListener('click', ()=> suggestModal?.close?.());
+document.getElementById('suggest-cancel')?.addEventListener('click', ()=> suggestModal?.close?.());
+
+const suggestForm   = document.getElementById('suggest-form');
+const suggestBtn    = document.getElementById('suggest-submit');
+const suggestStatus = document.getElementById('suggest-status');
+
+suggestForm?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const text = document.getElementById('suggest-text').value.trim();
+  if (!text) { suggestStatus.textContent = 'Please type a suggestion.'; return; }
+
+  suggestBtn.disabled = true;
+  suggestStatus.textContent = 'Sending...';
+
+  try {
+    // Optionally include some context from the current form if it exists
+    const identifier = (document.querySelector('input[name="identifier"]')?.value || '').trim();
+    const clayChoiceVal = (document.getElementById('clay_body_choice')?.value || '').toString();
+    const clayOtherVal  = (document.getElementById('clay_body_other')?.value || '').toString().trim();
+    const clay_body     = clayChoiceVal === 'Other' ? clayOtherVal : clayChoiceVal;
+
+    // Collect glaze names if your repeater is on this page
+    const glazeRows = Array.from(document.querySelectorAll('.glaze-row'));
+    const glaze_names = glazeRows.map(r => r.querySelector('.glaze-name')?.value.trim()).filter(Boolean);
+
+    await submitSuggestionFn({
+      text,
+      page: location.href,
+      identifier: identifier || null,
+      clay_body: clay_body || null,
+      glazes: glaze_names
+    });
+
+    suggestStatus.textContent = 'Thanks! Added to the suggestions issue.';
+    suggestForm.reset();
+    setTimeout(()=> { suggestModal?.close?.(); suggestStatus.textContent = ''; }, 900);
+  } catch (err) {
+    console.error(err);
+    suggestStatus.textContent = `Failed to send: ${err.message || err}`;
+  } finally {
+    suggestBtn.disabled = false;
+  }
+});
+
 
 // ---------- Live gallery (Firestore) ----------
 const itemsCol = collection(db, 'items');
