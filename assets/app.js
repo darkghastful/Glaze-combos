@@ -417,19 +417,50 @@ form.addEventListener('submit', async (e) => {
     const image_url = await getDownloadURL(mainRef);
     const thumb_url = await getDownloadURL(thumbRef);
 
-    await addDoc(itemsCol, {
+
+    const ALLOWED = ['identifier','clay_body','notes',
+      'image_url','thumb_url','width','height',
+      'submitted_at','glazes','glaze_names'];
+
+    const doc = {
       identifier: identifier || undefined,
       clay_body,
       notes,
-      // tags,
-      glazes,        // array of { name, layers, application }
-      glaze_names,   // array of strings for filtering
+      glazes,
+      glaze_names,
       image_url,
       thumb_url,
       width: main.width,
       height: main.height,
       submitted_at: serverTimestamp()
-    });
+    };
+
+    const keys = Object.keys(doc);
+    const extras = keys.filter(k => !ALLOWED.includes(k));
+    console.log('DOC KEYS =', keys);
+    console.log('EXTRA KEYS =', extras);
+
+    if (extras.length) {
+      throw new Error('Unexpected fields: ' + extras.join(', '));
+    }
+    if (doc.identifier != null && typeof doc.identifier !== 'string') {
+      throw new Error('identifier must be string or undefined');
+    }
+    if (doc.notes != null && typeof doc.notes !== 'string') {
+      throw new Error('notes must be string or undefined');
+    }
+    if (typeof doc.image_url !== 'string') {
+      throw new Error('image_url must be string');
+    }
+    if (doc.glazes != null && !Array.isArray(doc.glazes)) {
+      throw new Error('glazes must be an array');
+    }
+    if (doc.glaze_names != null && !Array.isArray(doc.glaze_names)) {
+      throw new Error('glaze_names must be an array');
+    }
+
+
+    await addDoc(itemsCol, doc);
 
     statusEl.textContent = 'Submitted. Thank you!';
     form.reset();
@@ -459,7 +490,8 @@ document.getElementById('test-doc')?.addEventListener('click', async () => {
       image_url: 'https://example.com/image.jpg',
       thumb_url: 'https://example.com/thumb.jpg',
       width: 800, height: 800,
-      submitted_at: serverTimestamp()
+      submitted_at: serverTimestamp(),
+      identifier: NULL
     };
     await addDoc(itemsCol, sample);
     alert('Firestore create OK');
