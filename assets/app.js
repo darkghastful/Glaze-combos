@@ -118,7 +118,7 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-setLogLevel('debug'); // temporary while debugging
+// setLogLevel('debug'); // temporary while debugging
 const storage = getStorage(app);
 const functions = getFunctions(app);
 const submitSuggestionFn = httpsCallable(functions, "submitSuggestion");
@@ -228,7 +228,7 @@ suggestForm?.addEventListener('submit', async (e) => {
       glazes: glaze_names
     });
 
-    suggestStatus.textContent = 'Thanks! Added to the suggestions issue.';
+    suggestStatus.textContent = 'Thanks, suggestion has been added!';
     suggestForm.reset();
     setTimeout(()=> { suggestModal?.close?.(); suggestStatus.textContent = ''; }, 900);
   } catch (err) {
@@ -300,8 +300,8 @@ function renderGallery(items) {
       <img class="thumb" loading="lazy" src="${item.thumb_url || item.image_url}" alt="${item.identifier || 'Pottery'}" />
       <div class="meta">
         <div>
-          <div class="title">${item.identifier || 'Untitled'}</div>
-          <div class="sub">${[glazeLine, item.clay_body].filter(Boolean).join(' • ')}</div>
+          // <div class="title">${item.identifier || 'Untitled'}</div>
+          <div class="title">${[item.clay_body, glazeLine].filter(Boolean).join(' • ')}</div>
         </div>
       </div>
       <button class="open" aria-label="Open details"></button>
@@ -314,6 +314,7 @@ function renderGallery(items) {
 function openDetail(item) {
   document.getElementById('detail-image').src = item.image_url;
   document.getElementById('detail-title').textContent = item.identifier || 'Untitled';
+  document.getElementById('detail-clay').textContent = item.clay_body || '—';
   const gz = Array.isArray(item.glazes) ? item.glazes : [];
   const glazeDetail = gz.length
     ? gz.map(g => {
@@ -321,15 +322,13 @@ function openDetail(item) {
         if (g.layers) parts.push(`${g.layers} layer${g.layers > 1 ? 's' : ''}`);
         if (g.application) parts.push(g.application);
         return parts.join(' — ');
-      }).join(' • ')
+      }).join('\n')
     : (item.glaze || '—');
   document.getElementById('detail-glaze').textContent = glazeDetail;
-  document.getElementById('detail-clay').textContent = item.clay_body || '—';
-  document.getElementById('detail-identifier').textContent = item.identifier || '—';
   document.getElementById('detail-notes').textContent = item.notes || '—';
-  document.getElementById('detail-tags').textContent = (item.tags || []).join(', ') || '—';
   const dt = item.submitted_at?.toDate?.() || item.submitted_at;
   document.getElementById('detail-date').textContent = dt ? new Date(dt).toLocaleString() : '—';
+  document.getElementById('detail-identifier').textContent = item.identifier || '—';
   modal.showModal();
 }
 
