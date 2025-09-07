@@ -41,7 +41,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--accent); box-sha
 /* Modal */
 dialog { width:min(1000px, 92vw); border:none; border-radius: 18px; background: var(--card); color: var(--text); padding: 0; }
 dialog::backdrop { background: rgba(0,0,0,0.5); }
-#modal-close, #submit-close { position:absolute; top:10px; right:12px; border:1px solid var(--ring); background:#0f1320; color:var(--text); border-radius:10px; padding:4px 8px; cursor:pointer; }
+#modal-close, #submit-close, #suggest-close { position:absolute; top:10px; right:12px; border:1px solid var(--ring); background:#0f1320; color:var(--text); border-radius:10px; padding:4px 8px; cursor:pointer; }
 .detail-body { display:grid; grid-template-columns: 1.2fr 1fr; gap: 0; }
 #detail-image { width:100%; height:100%; object-fit:cover; background:#0b0d14; }
 .detail-meta { padding: 16px 18px; border-left: 1px solid var(--ring); }
