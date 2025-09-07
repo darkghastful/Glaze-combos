@@ -1,7 +1,7 @@
 // ---------- Firebase imports ----------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 // Optional App Check (uncomment + add your site key, then enforce in console)
 // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
@@ -118,7 +118,8 @@ const app = initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const storage = getStorage(app);
+setLogLevel('debug'); // temporary while debugging
+const storage = getStorage(app, "gs://glaze-combos.appspot.com");
 const functions = getFunctions(app);
 const submitSuggestionFn = httpsCallable(functions, "submitSuggestion");
 
@@ -142,17 +143,7 @@ const statusEl = document.getElementById('submit-status');
 
 // ---------- Clay body: White / Red / Other (+ text) ----------
 const clayChoice = document.getElementById('clay_body_choice');
-const clayOtherWrap = document.getElementById('clay_other_wrap');
-const clayOtherInput = document.getElementById('clay_body_other');
 
-function updateClayOtherVisibility() {
-  const show = clayChoice?.value === 'Other';
-  if (!clayOtherWrap || !clayOtherInput) return;
-  clayOtherWrap.hidden = !show;
-  clayOtherInput.required = show;
-}
-clayChoice?.addEventListener('change', updateClayOtherVisibility);
-updateClayOtherVisibility();
 
 // ---------- Glaze repeater (name, layers, application) ----------
 const glazesWrap = document.getElementById('glazes');
@@ -223,9 +214,7 @@ suggestForm?.addEventListener('submit', async (e) => {
   try {
     // Optionally include some context from the current form if it exists
     const identifier = (document.querySelector('input[name="identifier"]')?.value || '').trim();
-    const clayChoiceVal = (document.getElementById('clay_body_choice')?.value || '').toString();
-    const clayOtherVal  = (document.getElementById('clay_body_other')?.value || '').toString().trim();
-    const clay_body     = clayChoiceVal === 'Other' ? clayOtherVal : clayChoiceVal;
+    const clay_body = (document.getElementById('clay_body_choice')?.value || '').toString();
 
     // Collect glaze names if your repeater is on this page
     const glazeRows = Array.from(document.querySelectorAll('.glaze-row'));
@@ -380,7 +369,7 @@ form.addEventListener('submit', async (e) => {
     return;
   }
   if (!clay_body) {
-    statusEl.textContent = 'Please select a clay body (or enter one under Other).';
+    statusEl.textContent = 'Please select a clay body.';
     return;
   }
   if (glazes.length === 0) {
@@ -444,8 +433,6 @@ form.addEventListener('submit', async (e) => {
 
     statusEl.textContent = 'Submitted. Thank you!';
     form.reset();
-    // Reset clay body UI state & ensure one glaze row remains
-    updateClayOtherVisibility();
     const rows = glazesWrap.querySelectorAll('.glaze-row');
     rows.forEach((r, idx) => { if (idx > 0) r.remove(); });
     glazesWrap.querySelector('.glaze-name')?.focus();
@@ -453,9 +440,32 @@ form.addEventListener('submit', async (e) => {
     setTimeout(() => { submitModal?.close?.(); statusEl.textContent = ''; }, 800);
 
   } catch (err) {
-    console.error(err);
-    statusEl.textContent = `Submission failed: ${err.message || err}`;
+    console.error('UPLOAD/WRITE error:', err);
+    statusEl.textContent = `Submission failed: ${(err.code || '').toString()} ${err.message || err}`;
   } finally {
     submitBtn.disabled = false;
   }
 });
+
+
+document.getElementById('test-doc')?.addEventListener('click', async () => {
+  try {
+    if (!auth.currentUser) await signInAnonymously(auth);
+    const sample = {
+      clay_body: 'White',
+      notes: '',
+      glazes: [{ name: 'Shino', layers: 1, application: '' }],
+      glaze_names: ['Shino'],
+      image_url: 'https://example.com/image.jpg',
+      thumb_url: 'https://example.com/thumb.jpg',
+      width: 800, height: 800,
+      submitted_at: serverTimestamp()
+    };
+    await addDoc(itemsCol, sample);
+    alert('Firestore create OK');
+  } catch (e) {
+    console.error('Doc test failed:', e);
+    alert('Firestore error: ' + (e.code || e.message));
+  }
+});
+
