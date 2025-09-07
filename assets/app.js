@@ -423,7 +423,9 @@ form.addEventListener('submit', async (e) => {
       'submitted_at','glazes','glaze_names'];
 
     const doc = {
+      identifier: identifier || undefined,
       clay_body,
+      notes,
       glazes,
       glaze_names,
       image_url,
@@ -432,9 +434,6 @@ form.addEventListener('submit', async (e) => {
       height: main.height,
       submitted_at: serverTimestamp()
     };
-    if (identifier) doc.identifier = identifier;
-    if (notes) doc.notes = notes;
-
 
     const keys = Object.keys(doc);
     const extras = keys.filter(k => !ALLOWED.includes(k));
@@ -492,7 +491,6 @@ document.getElementById('test-doc')?.addEventListener('click', async () => {
       thumb_url: 'https://example.com/thumb.jpg',
       width: 800, height: 800,
       submitted_at: serverTimestamp(),
-      identifier: NULL
     };
     await addDoc(itemsCol, sample);
     alert('Firestore create OK');
