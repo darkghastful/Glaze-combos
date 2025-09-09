@@ -1,16 +1,12 @@
 // ---------- Firebase imports ----------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 // Optional App Check (uncomment + add your site key, then enforce in console)
 // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 import { firebaseConfig } from "./firebase-config.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
-import {
-  getFirestore, collection, doc, setDoc, addDoc,
-  serverTimestamp, query, orderBy, onSnapshot, setLogLevel
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
 
 
 // ---------- Capacity & image settings (tuned for ≤ 3k pieces under 5GB) ----------
