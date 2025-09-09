@@ -1,12 +1,16 @@
 // ---------- Firebase imports ----------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 // Optional App Check (uncomment + add your site key, then enforce in console)
 // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
 import { firebaseConfig } from "./firebase-config.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
+import {
+  getFirestore, collection, doc, setDoc, addDoc,
+  serverTimestamp, query, orderBy, onSnapshot, setLogLevel
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
 
 
 // ---------- Capacity & image settings (tuned for ≤ 3k pieces under 5GB) ----------
@@ -22,6 +26,18 @@ const THUMB_BUDGET_BYTES = PER_SUBMISSION_BUDGET - MAIN_BUDGET_BYTES;
 // Visual max dimensions
 const IMAGE_MAX_LONG_EDGE = 1600; // px
 const THUMB_MAX_LONG_EDGE = 480;  // px
+
+
+// Helper file name
+function slugPart(s) {
+  return (s ?? '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/[^a-z0-9]+/g, '-')                      // keep a–z, 0–9, hyphen
+    .replace(/^-+|-+$/g, '');                          // trim hyphens
+}
 
 // ---------- Helpers: image loading & compression ----------
 async function fileToImageBitmap(file) {
@@ -385,6 +401,16 @@ form.addEventListener('submit', async (e) => {
   }).filter(g => g.name);
   const glaze_names = glazes.map(g => g.name);
 
+  const stamp = Date.now();
+
+  // Build: clayBody_glaze1_glaze2_g<COUNT>_<timestamp>
+  const clayId   = slugPart(clay_body) || 'na';
+  const glazeIds = (glaze_names || []).map(slugPart).filter(Boolean);
+  const docIdRaw = [clayId, ...glazeIds, `g${glazeIds.length}`, String(stamp)].join('_');
+
+  // Keep IDs reasonable length (Firestore allows up to 1500 bytes; we’ll cap to 200)
+  const docId = docIdRaw.slice(0, 200);
+
   if (!identifier || !file || !file.size) {
     statusEl.textContent = 'Please provide an identifier and an image.';
     return;
@@ -418,7 +444,6 @@ form.addEventListener('submit', async (e) => {
     });
 
     const baseSlug = identifier.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'piece';
-    const stamp    = Date.now();
 
     const mainExt  = main.type  === 'image/webp' ? 'webp' : 'jpg';
     const thumbExt = thumb.type === 'image/webp' ? 'webp' : 'jpg';
@@ -443,8 +468,8 @@ form.addEventListener('submit', async (e) => {
       'image_url','thumb_url','width','height',
       'submitted_at','glazes','glaze_names'];
 
-    const doc = {
-      identifier: identifier || undefined,
+    // build doc without undefined fields
+    const docData = {
       clay_body,
       notes,
       glazes,
@@ -455,33 +480,25 @@ form.addEventListener('submit', async (e) => {
       height: main.height,
       submitted_at: serverTimestamp()
     };
+    if (identifier) docData.identifier = identifier;
 
-    const keys = Object.keys(doc);
+    // validations against your allow-list
+    const keys   = Object.keys(docData);
     const extras = keys.filter(k => !ALLOWED.includes(k));
     console.log('DOC KEYS =', keys);
     console.log('EXTRA KEYS =', extras);
+    if (extras.length) throw new Error('Unexpected fields: ' + extras.join(', '));
+    if (docData.identifier != null && typeof docData.identifier !== 'string') throw new Error('identifier must be string');
+    if (docData.notes != null && typeof docData.notes !== 'string') throw new Error('notes must be string');
+    if (typeof docData.image_url !== 'string') throw new Error('image_url must be string');
+    if (docData.glazes != null && !Array.isArray(docData.glazes)) throw new Error('glazes must be an array');
+    if (docData.glaze_names != null && !Array.isArray(docData.glaze_names)) throw new Error('glaze_names must be an array');
 
-    if (extras.length) {
-      throw new Error('Unexpected fields: ' + extras.join(', '));
-    }
-    if (doc.identifier != null && typeof doc.identifier !== 'string') {
-      throw new Error('identifier must be string or undefined');
-    }
-    if (doc.notes != null && typeof doc.notes !== 'string') {
-      throw new Error('notes must be string or undefined');
-    }
-    if (typeof doc.image_url !== 'string') {
-      throw new Error('image_url must be string');
-    }
-    if (doc.glazes != null && !Array.isArray(doc.glazes)) {
-      throw new Error('glazes must be an array');
-    }
-    if (doc.glaze_names != null && !Array.isArray(doc.glaze_names)) {
-      throw new Error('glaze_names must be an array');
-    }
+    // ✅ write with your custom ID
+    const ref = doc(collection(db, 'items'), docId);
+    await setDoc(ref, docData);
+    console.log('Created doc with ID:', docId);
 
-
-    await addDoc(itemsCol, doc);
 
     statusEl.textContent = 'Submitted. Thank you!';
     form.reset();
