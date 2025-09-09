@@ -1,7 +1,7 @@
 // ---------- Firebase imports ----------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, addDoc, serverTimestamp, query, orderBy, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 // Optional App Check (uncomment + add your site key, then enforce in console)
 // import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app-check.js";
@@ -406,6 +406,7 @@ form.addEventListener('submit', async (e) => {
 
   // Keep IDs reasonable length (Firestore allows up to 1500 bytes; we’ll cap to 200)
   const docId = docIdRaw.slice(0, 200);
+  console.log('Will write custom doc ID:', docId);
 
   if (!identifier || !file || !file.size) {
     statusEl.textContent = 'Please provide an identifier and an image.';
@@ -490,7 +491,6 @@ form.addEventListener('submit', async (e) => {
     if (docData.glazes != null && !Array.isArray(docData.glazes)) throw new Error('glazes must be an array');
     if (docData.glaze_names != null && !Array.isArray(docData.glaze_names)) throw new Error('glaze_names must be an array');
 
-    // ✅ write with your custom ID
     const ref = doc(collection(db, 'items'), docId);
     await setDoc(ref, docData);
     console.log('Created doc with ID:', docId);
